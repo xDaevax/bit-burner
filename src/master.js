@@ -1,11 +1,7 @@
-import { CapabilityLoader } from "sys/capability-loader.js";
+import { setup } from 'modules/compose/index';
 
 /** @param {NS} ns */
 export async function main(ns) {
-    ns.weaken;
-    let loader = new CapabilityLoader(ns);
-    console.log('here');
-    let capabilities = loader.loadCapabilities();
-
-    console.log(capabilities);
+    ns.weaken; // RAM trick to reduce consumption.
+    await setup(ns);
 }

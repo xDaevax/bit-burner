@@ -5,13 +5,16 @@ import { UIManager } from "managers/ui-manager";
 import { UIService } from "services/ui-service";
 import { window, dom } from 'sys/dom';
 import { StockService } from "services/stock-service";
-import { StockManager, StockManagerConfiguration } from "managers/stock-manager";
+import { StockManager } from "managers/stock-manager";
+import { Capability } from "models/capability";
+import { CapabilityLoader } from "sys/capability-loader";
 
 /**
  * Composition root that boot-straps all other scripts.
  * @param {import("..").NS} ns The NetScript instance injected from context.
+ * @param {Array<Capability>} capabilities The collection of capabilities for the current game.
  */
-export async function main(ns) {
+export async function setup(ns) {
     const win = window();
     const doc = dom();
     const stockConfig = {
@@ -24,10 +27,11 @@ export async function main(ns) {
     
     win[DomNames.DependencyInjection] = Injector();
     win[DomNames.DependencyInjection].setup('port-service', new PortService());
+    win[DomNames.DependencyInjection].setup('capability-loader', new CapabilityLoader(ns));
     win[DomNames.DependencyInjection].setup('stock-manager', new StockManager(ns, stockConfig));
     win[DomNames.DependencyInjection].setup('stock-service', new StockService(getService('stock-manager', win)));
     win[DomNames.DependencyInjection].setup('style-service', new StyleService(ns, doc, getService('port-service', win)));
-    win[DomNames.DependencyInjection].setup('ui-manager', new UIManager(doc, getService('style-service', win)));
+    win[DomNames.DependencyInjection].setup('ui-manager', new UIManager(doc, getService('style-service', win), getService('capability-loader', win)));
     win[DomNames.DependencyInjection].setup('ui-service', new UIService(doc, async (value) => { await ns.asleep(value); }, getService('ui-manager', win)))
 
     while(!getService('style-service', win).disposed) {

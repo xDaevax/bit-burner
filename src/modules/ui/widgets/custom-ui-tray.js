@@ -3,6 +3,7 @@ import { Liner } from 'modules/ui/components/liner';
 import { Container } from 'modules/ui/components/container';
 import { LinerOptions } from 'modules/ui/components/liner';
 import { StyleMessage } from 'services/style-service';
+import { Capability } from 'models/capability';
 
 /**
  * Type used to display a custom UI for launching additional UI enhancements.
@@ -28,7 +29,6 @@ export class CustomUITray extends BaseElement {
         const styles = `
             .max-10 {
                 max-width: 10vw;
-                color: white;
             }
         `;
 
@@ -40,7 +40,7 @@ export class CustomUITray extends BaseElement {
     }
 
     #initUIAugments() {
-        if (this.#uiOptions.scripts.length > 0) {
+        if (this.#uiOptions?.scripts?.length > 0) {
             this.#uiOptions.scripts.forEach(script => {
                 let newState = new AugmentState();
                 newState.sourceFile = script;
@@ -59,18 +59,36 @@ export class CustomUITray extends BaseElement {
         return options;
     }
 
-    create(id) {
+    /**
+     * 
+     * @param {string} id The unique identifier of the element.
+     * @param {Array<Capability>} capabilities The set of capabilities of the current game. 
+     */
+    create(id, capabilities) {
         this.#setupStyles();
         this.#initUIAugments();
         let options = this.#createOptions();
+        let uiCapabilities = this.createNode('ul');
+        
+        if (capabilities && capabilities.length > 0) {
+            capabilities.forEach(item => {
+                let lineItem = this.createNode('li');
+                lineItem.textContent = `${item.name}: ${item.value}`;
+
+                uiCapabilities.appendChild(lineItem);
+            });
+        }
+
+        options.children.push(uiCapabilities);
+
         let liner = new Liner(this.getDom(), options);
         let container = new Container(this.getDom(), { id: id, content: liner.create() });
 
         container.render('Interface Utilities');
     } // end function create
 
-    render(id) {
-        this.getDom().getElementsByTagName('body')[0].append(this.create(id));
+    render(id, capabilities) {
+        this.getDom().getElementsByTagName('body')[0].append(this.create(id, capabilities));
     } // end function render
 } // end class CustomUITray
 
