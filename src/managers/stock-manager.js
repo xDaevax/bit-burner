@@ -45,7 +45,7 @@ export class StockManager {
      * Initializes a new instance of the StockManager class.
 
      * @param {NS} ns The NetScript instance used to perform stock operations.
-     * @param {StockManagerConfiguration} settings The configuration for the managaer.
+     * @param {StockManagerConfiguration} settings The configuration for the manager.
      */
     constructor(ns, settings) {
         this.#ns = ns;

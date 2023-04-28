@@ -11,7 +11,7 @@ export class CapabilityLoader {
         return this.#ns.getPlayer();
     }
 
-    #hasSignularity() {
+    #hasSingularity() {
         try {
             return this.#ns.singularity.getCurrentServer() != '';
         } catch {
@@ -27,7 +27,7 @@ export class CapabilityLoader {
         return [
             new Capability(Capabilities.BitNode.description, this.#player().bitNodeN),
             new Capability(Capabilities.HackNetServer.description, this.#hacknet().getNodeStats(0).hasOwnProperty('cache')),
-            new Capability(Capabilities.SingularityAPI.description, this.#hasSignularity())
+            new Capability(Capabilities.SingularityAPI.description, this.#hasSingularity())
         ];
     }
 }

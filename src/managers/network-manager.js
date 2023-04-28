@@ -1,12 +1,13 @@
 import { NetworkNode } from '/models/network-node.js';
 import { NetworkMap } from '/models/network-map.js';
 
-/** @param {NS} ns */
+/** Test method for the manager. 
+ * @param {NS} ns */
 export async function main(ns) {
 	let manager = new NetworkManager(ns);
 	manager.build('home');
 	console.log(manager.checkVulnerability());
-}
+} // end method main
 
 /**
  * Manager that simplifies management / interaction with the network.  Used by other utilities to make decisions and load data.
