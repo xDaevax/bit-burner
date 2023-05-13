@@ -15,9 +15,10 @@ export class SpendManager {
 	async spendMoney() {
 		while (!this.cancel) {
 			let currentHashCount = this.#ns.hacknet.numHashes();
+			let purchaseAmount = currentHashCount * .01;
 
-			if (currentHashCount > this.#ns.hacknet.hashCapacity() / 50) {
-				this.#ns.hacknet.spendHashes('Sell for Money', '', 50);
+			if (currentHashCount > (this.#ns.hacknet.hashCapacity() *.01)) {
+				this.#ns.hacknet.spendHashes('Sell for Money', '', purchaseAmount);
 			}
 
 			await this.#ns.sleep(1000);
