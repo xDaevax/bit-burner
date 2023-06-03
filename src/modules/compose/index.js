@@ -28,7 +28,7 @@ export async function setup(ns) {
         reserveFundRatio: 0.2,
         commission: 100000,
         cycleCount: 2,
-        expectedReturnLossSaleThresholdRatio: 0.4
+        expectedReturnLossSaleThresholdRatio: -0.4
     };
     
     win[DomNames.DependencyInjection] = Injector();
