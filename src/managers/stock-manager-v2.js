@@ -1,109 +1,174 @@
-let fracL = 0.1;     //Fraction of assets to keep as cash in hand
-let fracH = 0.2;
-let commission = 100000; //Buy or sell commission
-let numCycles = 2;   //Each cycle is 5 seconds
-let expRetLossToSell = -0.4; // As a percent, the amount of change between the initial
-// forecasted return and the current return of the stock. I.e. -40% less forecasted return now
-// than when we purchased the stock.
+import { Stock } from "models/stock";
 
+/**
+ * A manager type used to handle stock market automation.
+ */
+export class StockManagerV2 {
+    #ns = {};
+    #settings = {};
 
-function pChange(ns, sym, oldNum, newNum){
-    const diff = newNum < oldNum ? -(oldNum - newNum) : newNum - oldNum;
-    let pdiff = diff / oldNum;
-    ns.print(`${sym}:\t${oldNum.toFixed(5)} -> ${newNum.toFixed(5)} | ${(pdiff*100).toFixed(3)}%`);
-    return pdiff
-}
+    /**
+     * A set of configuration properties for the manager.
+     * @typedef {Object} StockManagerConfiguration
+     * @property {Number} reserveFundRatio The ratio of funds to reserve for non-stock market operations.
+     * @property {Number} expectedReturnLossSaleThresholdRatio As a percent, the amount of change between the initial forecasted return and the current return of the stock. I.e. -40% less forecasted return now than when we purchased the stock.
+     * @property {Number} commission Buy or sell commission.
+     * @property {Number} cycleCount Each cycle is 5 seconds.
+     */
 
-function refresh(ns, stocks, myStocks){
-    let corpus = ns.getServerMoneyAvailable("home");
-    myStocks.length = 0;
-
-    for(let i = 0; i < stocks.length; i++){
-        let sym = stocks[i].sym;
-        stocks[i].price = ns.stock.getPrice(sym);
-        stocks[i].shares  = ns.stock.getPosition(sym)[0];
-        stocks[i].buyPrice = ns.stock.getPosition(sym)[1];
-        stocks[i].vol = ns.stock.getVolatility(sym);
-        stocks[i].prob = 2* (ns.stock.getForecast(sym) - 0.5);
-        stocks[i].expRet = stocks[i].vol * stocks[i].prob / 2;
-
-        if (stocks[i].shares > 0){
-            stocks[i].initExpRet ||= stocks[i].expRet;
-        } else{
-            stocks[i].initExpRet = null;
-        }
-        
-        corpus += stocks[i].price * stocks[i].shares;
-
-        if(stocks[i].shares > 0) myStocks.push(stocks[i]);
-        // ns.print(JSON.stringify(stocks[i]))
+    /**
+     * Initializes a new instance of the StockManager class.
+     * @param {NS} ns The NetScript instance used to perform stock operations.
+     * @param {StockManagerConfiguration} settings The configuration for the manager.
+     */
+    constructor(ns, settings) {
+        this.#ns = ns;
+        this.#settings = settings;
     }
 
-    stocks.sort(function(a, b){return b.expRet - a.expRet});
-    return corpus;
-}
+    #log(message) {
+        this.#ns.print(message);
+    } // end function log
 
-function format(num){
-    let symbols = ["","K","M","B","T","Qa","Qi","Sx","Sp","Oc"];
-    let i = 0;
-    for(; (num >= 1000) && (i < symbols.length); i++) num /= 1000;
+    #mapStock(sym) {
+        let newStock = new Stock();
+        newStock.symbol = sym;
+        newStock.price = this.#ns.stock.getPrice(sym);
+        const position = this.#ns.stock.getPosition(sym);
+        newStock.shares = position[0];
+        newStock.buyPrice = position[1];
+        newStock.volatility = this.#ns.stock.getVolatility(sym);
+        newStock.probability = 2 * (this.#ns.stock.getForecast(sym) - 0.5);
+        newStock.expectedReturn = newStock.volatility * newStock.probability / 2;
+
+        if (newStock.shares > 0) {
+            newStock.initialExpectedReturn ||= newStock.expectedReturn;
+        } else {
+            newStock.initialExpectedReturn = null;
+        }
+
+        return newStock;
+    }
+
+    loadAllStocks() {
+        return [...this.#ns.stock.getSymbols().map((sym) => this.#mapStock(sym))];
+    }
+
+    #getCurrentMoney() {
+        return this.#ns.getServerMoneyAvailable("home");
+    }
+
+    #calculateCashToSpend(corpus) {
+        return this.#getCurrentMoney() - (this.#settings.reserveFundRatio * corpus);
+    }
+
+    #refresh(stocks, myStocks) {
+        let corpus = this.#getCurrentMoney();
+        myStocks.length = 0;
+
+        for (let i = 0; i < stocks.length; i++) {
+            stocks[i] = this.#mapStock(stocks[i].symbol);
+
+            corpus += stocks[i].price * stocks[i].shares;
+
+            if (stocks[i].shares > 0) {
+                myStocks.push(stocks[i]);
+            }
+            // ns.print(JSON.stringify(stocks[i]))
+        }
+
+        stocks.sort((a, b) => { return b.expectedReturn - a.expectedReturn });
+        return corpus;
+    }
+
+    #format(num) {
+        let symbols = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc"];
+        let i = 0;
+        for (; (num >= 1000) && (i < symbols.length); i++) num /= 1000;
     
-    return ( (Math.sign(num) < 0)?"-$":"$") + num.toFixed(3) + symbols[i];
-}
+        return ((Math.sign(num) < 0) ? "-$" : "$") + num.toFixed(3) + symbols[i];
+    }
 
-async function buy(ns, stock, numShares) {
-    const max = ns.stock.getMaxShares(stock.sym)
-    numShares = max < numShares ?  max : numShares;
+    #pChange(sym, oldNum, newNum) {
+        const diff = newNum < oldNum ? -(oldNum - newNum) : newNum - oldNum;
+        let pdiff = diff / oldNum;
+        this.#log(`${sym}:\t${oldNum.toFixed(5)} -> ${newNum.toFixed(5)} | ${(pdiff * 100).toFixed(3)}%`);
+        return pdiff;
+    }
+
+    async #sell(stock, numShares) {
+        let profit = numShares * ((stock.price - stock.purchasePrice) - (2 * this.#settings.commission));
+        await this.#ns.stock.sellStock(stock.symbol, numShares);
+        this.#log(`Sold ${stock.symbol} for profit of ${this.#format(profit)}`);
+    }
+
+    async #buy(stock, numShares) {
+        const max = this.#ns.stock.getMaxShares(stock.symbol)
+        numShares = max < numShares ? max : numShares;
     
-    await ns.stock.buyStock(stock.sym, numShares);
-    ns.print(`Bought ${stock.sym} for ${format(numShares * stock.price)}`);
-}
+        await this.#ns.stock.buyStock(stock.symbol, numShares);
+        this.#log(`Bought ${stock.symbol} for ${this.#format(numShares * stock.price)}`);
+    }
 
-async function sell(ns, stock, numShares) {
-    let profit = numShares * ((stock.price - stock.buyPrice) - (2 * commission));
-    await ns.stock.sellStock(stock.sym, numShares);
-    ns.print(`Sold ${stock.sym} for profit of ${format(profit)}`);
-}
+    async run(shouldCancel) {
+        let stocks = this.loadAllStocks();
+        let myStocks = [];
 
+        while (!shouldCancel()) {
+            let corpus = this.#refresh(stocks, myStocks);
+            // Symbol, Initial Return, Current Return, The % change between
+            // the Initial Return and the Current Return.
+            this.#log("Currently Owned Stocks:");
+            this.#log("SYM | InitReturn -> CurReturn | % change");
+            // Sell underperforming shares
+            for (let i = 0; i < myStocks.length; i++) {
+                if (this.#pChange(myStocks[i].symbol, myStocks[i].initialExpectedReturn, myStocks[i].expectedReturn) <= this.#settings.expectedReturnLossSaleThresholdRatio) {
+                    await this.#sell(myStocks[i], myStocks[i].shares);
+                }
+
+                if (myStocks[i].expectedReturn <= 0) {
+                    await this.#sell(myStocks[i], myStocks[i].shares);
+                }
+
+                corpus -= this.#settings.commission;
+            }
+
+            this.#log("----------------------------------------");
+
+            // Buy shares with cash remaining in hand
+            for (let stock of stocks) {
+                if (stock.shares > 0) {
+                    continue;
+                }
+
+                if (stock.expectedReturn <= 0) {
+                    continue;
+                }
+
+                let cashToSpend = this.#calculateCashToSpend(corpus);
+                let numShares = Math.floor((cashToSpend - this.#settings.commission) / stock.price);
+
+                if ((numShares * stock.expectedReturn * stock.price * this.#settings.cycleCount) > this.#settings.commission) {
+                    await this.#buy(stock, numShares);
+                }
+
+                break;
+            }
+
+            await this.#ns.sleep(5 * 1000 * this.#settings.cycleCount + 200);
+        }
+    } // end function run
+} // end class StockManagerV2
 
 export async function main(ns) {
     //Initialise
     ns.disableLog("ALL");
-    let stocks = [...ns.stock.getSymbols().map(_sym => {return {sym: _sym}})];
-    let myStocks = [];
-    let corpus = 0;
+    const manager = new StockManagerV2(ns, {
+        reserveFundRatio: 0.2,
+        commission: 100000,
+        cycleCount: 2,
+        expectedReturnLossSaleThresholdRatio: 0.4
+    });
 
-
-    while (true) {
-        corpus = refresh(ns, stocks, myStocks);
-        //Symbol, Initial Return, Current Return, The % change between
-        // the Initial Return and the Current Return.
-        ns.print("Currently Owned Stocks:")
-        ns.print("SYM | InitReturn -> CurReturn | % change")
-        //Sell underperforming shares
-        for (let i = 0; i < myStocks.length; i++) {
-            if (pChange(ns, myStocks[i].sym, myStocks[i].initExpRet, myStocks[i].expRet) <= expRetLossToSell)
-                await sell(ns, myStocks[i], myStocks[i].shares);
-
-            if (myStocks[i].expRet <= 0)
-                await sell(ns, myStocks[i], myStocks[i].shares);
-
-            corpus -= commission;
-        }
-        ns.print("----------------------------------------")
-
-        //Buy shares with cash remaining in hand
-        for (let stock of stocks){
-
-            if (stock.shares > 0) continue;
-            if (stock.expRet <= 0) continue;
-            let cashToSpend = ns.getServerMoneyAvailable("home") - (fracH * corpus);
-            let numShares = Math.floor((cashToSpend - commission) / stock.price);
-            if ((numShares * stock.expRet * stock.price * numCycles) > commission)
-                await buy(ns, stock, numShares);
-                break;
-        }
-
-        await ns.sleep(5 * 1000 * numCycles + 200);
-    }
+    await manager.run(() => false);
 }

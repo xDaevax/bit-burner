@@ -26,18 +26,11 @@ export class StockService {
 
         this.#enabled = true;
 
-        let stocks = ns.stock.getSymbols();
-
         ns.disableLog('disableLog');
         ns.disableLog('sleep');
         ns.disableLog('getServerMoneyAvailable');
 
-        while (this.#enabled) {           
-            this.#stockManager.checkStocks(stocks);
-    
-            ns.print('Cycle Complete');
-            await ns.sleep(6000);
-        }
+        await this.#stockManager.run(() => this.#enabled);
     } // end function enableBroker
 
     /**

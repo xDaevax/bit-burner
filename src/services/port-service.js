@@ -1,8 +1,8 @@
 export class PortService {
-    #ports = {};
+    #ports;
     
     constructor() {
-
+        this.#ports = {};
     }
 
     register(portName) {

@@ -19,6 +19,10 @@ export class CapabilityLoader {
         }
     }
 
+    #has4SData() {
+        return this.#ns.stock.has4SData()();
+    }
+
     #hasExe(exeName) {
         return this.#ns.fileExists(exeName);
     }
@@ -36,7 +40,12 @@ export class CapabilityLoader {
             new Capability(Capabilities.Executables.FtpCrack.description, this.#hasExe(Capabilities.Executables.FtpCrack.description)),
             new Capability(Capabilities.Executables.RelaySmtp.description, this.#hasExe(Capabilities.Executables.RelaySmtp.description)),
             new Capability(Capabilities.Executables.HttpWorm.description, this.#hasExe(Capabilities.Executables.HttpWorm.description)),
-            new Capability(Capabilities.Executables.SqlInject.description, this.#hasExe(Capabilities.Executables.SqlInject.description))
+            new Capability(Capabilities.Executables.SqlInject.description, this.#hasExe(Capabilities.Executables.SqlInject.description)),
+            new Capability(Capabilities.AutoLink.description, this.#hasExe(Capabilities.Executables.AutoLink.description)),
+            new Capability(Capabilities.DeepScanV1.description, this.#hasExe(Capabilities.Executables.DeepScanV1.description)),
+            new Capability(Capabilities.DeepScanV2.description, this.#hasExe(Capabilities.Executables.DeepScanV2.description)),
+            new Capability(Capabilities.ServerProfiler.description, this.#hasExe(Capabilities.Executables.ServerProfiler.description)),
+            new Capability(Capabilities.Stocks.Has4SData.description, () => this.#has4SData())
         ];
     }
 }
@@ -50,6 +59,13 @@ export const Capabilities = {
         FtpCrack: Symbol('FTPCrack.exe'),
         RelaySmtp: Symbol('relaySMTP.exe'),
         HttpWorm: Symbol('HTTPWorm.exe'),
-        SqlInject: Symbol('SQLInject.exe')
+        SqlInject: Symbol('SQLInject.exe'),
+        AutoLink: Symbol('AutoLink.exe'),
+        DeepScanV1: Symbol('DeepScanV1.exe'),
+        DeepScanV2: Symbol('DeepScanV2.exe'),
+        ServerProfiler: Symbol('ServerProfiler.exe')
+    },
+    Stocks: {
+        Has4SData: Symbol('Has4SData')
     }
 };

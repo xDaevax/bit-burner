@@ -39,6 +39,7 @@ export class StockManager {
      * @property {Number} minimumStockVolumePercentage The volume percentage.  A stock whose volume is larger than this may be purchased, while one smaller will be sold.
      * @property {Number} forecastThresholdPercentage The minimum forecast to be considered a "worthwhile" investment.
      * @property {Number} maxPercentageOfAvailableShares Used to reduce the overall volume of stocks purchased.  A value of 1 means that up to the maximum available stocks for the symbol that the user can afford will be purchased.
+     * @property {string} algorithmVersion Used to determine which stock algorithm should be used.
      */
 
     /**
