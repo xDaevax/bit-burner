@@ -21,10 +21,6 @@ export class NodeManager {
 
 	async processNewNodes() {
 		while (!this.cancel) {
-			if (this.#curNodeCount >= this.#hacknet().maxNumNodes()) {
-				clearInterval(checkNodeCount);
-			}
-
 			if (this.#prevNodeCount < this.#curNodeCount) {
 				let diff = this.#curNodeCount - this.#prevNodeCount;
 

@@ -24,8 +24,8 @@ function runWeakens(ns, nodes) {
 				runWeakens(ns, currentNode.children);
 			}
 
-			if (currentNode.current.hasRoot() && !exclusions.some(item => item == currentNode.current.name()) && !excludedPrefixes.find(item => currentNode.current.name().startsWith(item))) {
-				ns.run('hack-n-grow.js', 20, currentNode.current.name());
+			if (currentNode.current.hasRoot() && currentNode.canHack(ns.getPlayer().skills.hacking) && !exclusions.some(item => item == currentNode.current.name()) && !excludedPrefixes.find(item => currentNode.current.name().startsWith(item))) {
+				ns.run('hack-n-grow.js', 200, currentNode.current.name());
 			}
 		}
 	}

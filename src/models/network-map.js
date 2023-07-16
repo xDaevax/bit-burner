@@ -59,4 +59,8 @@ export class NetworkMap {
 
 		return childVulnerable || (this.current.minHackLevel() <= hackLevel && !this.current.hasRoot());
 	} // end function hasVulnerableNode
+
+	canHack(hackLevel) {
+		return this.current.minHackLevel() <= hackLevel && this.current.hasRoot() && this.current.hasBackdoor();
+	}
 } // end class NetworkMap

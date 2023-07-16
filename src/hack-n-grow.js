@@ -1,10 +1,10 @@
 /** @param {NS} ns */
 export async function main(ns) {
-	systems.push(new SystemState(ns.args[0]));
+	workingSystems.push(new SystemState(ns.args[0]));
 
 	while (true) {
-		for(let i = 0; i < systems.length; i++) {
-			await performHack(ns, systems[i]);
+		for(let i = 0; i < workingSystems.length; i++) {
+			await performHack(ns, workingSystems[i]);
 		}
 	}
 }
@@ -21,7 +21,7 @@ export async function performHack(ns, state) {
 	}
 }
 
-const systems = [];
+const workingSystems = [];
 
 export class SystemState {
 	#hostName = '';
