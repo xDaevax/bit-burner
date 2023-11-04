@@ -21,11 +21,11 @@ export class HackCapabilities {
 			numPortsRequired: server.numOpenPortsRequired
         });
 
-        this.#homeNodesetPortState('HTTP', server.httpPortOpen);
-		this.#homeNodesetPortState('FTP', server.ftpPortOpen);
-		this.#homeNodesetPortState('SSH', server.sshPortOpen);
-		this.#homeNodesetPortState('SMTP', server.smtpPortOpen);
-		this.#homeNodesetPortState('SQL', server.sqlPortOpen);
+        this.#homeNode.setPortState('HTTP', server.httpPortOpen);
+		this.#homeNode.setPortState('FTP', server.ftpPortOpen);
+		this.#homeNode.setPortState('SSH', server.sshPortOpen);
+		this.#homeNode.setPortState('SMTP', server.smtpPortOpen);
+		this.#homeNode.setPortState('SQL', server.sqlPortOpen);
     }
 
     hasExe(exeName) {
