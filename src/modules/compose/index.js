@@ -8,6 +8,10 @@ import { StockService } from "services/stock-service";
 import { StockManagerV2 } from "managers/stock-manager-v2";
 import { Capability } from "models/capability";
 import { CapabilityLoader } from "sys/capability-loader";
+import { NetworkManager } from "managers/network-manager";
+import { HackManager } from "managers/hack-manager";
+import { SystemStorageEngine } from "sys/system-storage-engine";
+import { PlayerDataWatcher } from "data/player-data-watcher";
 
 /**
  * Composition root that boot-straps all other scripts.
@@ -16,6 +20,11 @@ import { CapabilityLoader } from "sys/capability-loader";
 export async function setup(ns) {
     const win = window();
     const doc = dom();
+
+    const startupScripts = [
+      'managers/stock-manager-v2.js',
+      'modules/hacknet/main.js'  
+    ];
     /*const stockConfig = {
         reserveFunds: 10000000000, // 10 Billion
         minimumStocksPerPurchase: 5,
@@ -30,6 +39,8 @@ export async function setup(ns) {
         cycleCount: 2,
         expectedReturnLossSaleThresholdRatio: -0.4
     };
+
+    let interruptToken = {isCancellationRequested: false};
     
     win[DomNames.DependencyInjection] = Injector();
     win[DomNames.DependencyInjection].setup('port-service', new PortService());
@@ -38,7 +49,19 @@ export async function setup(ns) {
     win[DomNames.DependencyInjection].setup('stock-service', new StockService(getService('stock-manager', win)));
     win[DomNames.DependencyInjection].setup('style-service', new StyleService(ns, doc, getService('port-service', win)));
     win[DomNames.DependencyInjection].setup('ui-manager', new UIManager(doc, getService('style-service', win), getService('capability-loader', win)));
-    win[DomNames.DependencyInjection].setup('ui-service', new UIService(doc, async (value) => { await ns.asleep(value); }, getService('ui-manager', win)))
+    win[DomNames.DependencyInjection].setup('ui-service', new UIService(doc, async (value) => { await ns.asleep(value); }, getService('ui-manager', win)));
+    win[DomNames.DependencyInjection].setup('network-manager', new NetworkManager(ns));
+    win[DomNames.DependencyInjection].setup('hack-manager', new HackManager(ns, {exclusions: ['home'], prefixExclusions: ['hack-', 'weaken-']}, getService('network-manager', win)));
+    win[DomNames.DependencyInjection].setup('storage-engine', new SystemStorageEngine());
+    win[DomNames.DependencyInjection].setup('player-watcher', new PlayerDataWatcher(ns, getService('storage-engine', win)));
+
+    getService('hack-manager', win).startHack();
+    ns.atExit(() => {interruptToken.isCancellationRequested = true});
+    getService('player-watcher', win).startWatcher(interruptToken);
+
+    startupScripts.forEach(script => {
+        ns.run(script);
+    });
 
     while(!getService('style-service', win).disposed) {
         await ns.asleep(5000);
