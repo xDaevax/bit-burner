@@ -27,9 +27,9 @@ export class StyleService {
                 let stylesheets = [];
 
                 for (let i = 0; i < this.#dom.styleSheets.length; i++) {
-                    const currentSheet = this.#dom.styleSheets[i];
+                    let currentSheet = this.#dom.styleSheets[i];
 
-                    if (currentSheet?.title?.indexOf('custom') >= 0) {
+                    if (currentSheet?.title?.length > 0) {
                         stylesheets.push(currentSheet);
                     }
                 }

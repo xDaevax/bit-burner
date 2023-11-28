@@ -32,7 +32,9 @@ export class Button extends BaseElement {
             node.classList.add(...this.#options.cssClasses);
         }
 
-        node.value = this.#options.displayText;
+        node.classList.add('custom-ui');
+
+        node.textContent = this.#options.displayText;
         node.onclick = this.#options.click;
 
         return node;

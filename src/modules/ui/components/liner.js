@@ -68,5 +68,7 @@ export class Liner extends BaseElement {
 export class LinerOptions {
     cssClasses = [];
     children = [];
+    allowClose = false;
+    allowExpand = false;
     id = null;
 } // end class LinerOptions

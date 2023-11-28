@@ -12,6 +12,7 @@ export class CustomUITray extends BaseElement {
     #styleService;
     #uiOptions;
     #state = [];
+    #augmentations;
 
     /**
      * Initializes a new instance of the CustomUITray class.
@@ -19,16 +20,22 @@ export class CustomUITray extends BaseElement {
      * @param {StyleService} styleService The StyleService instance used to push style updates to the DOM.
      * @param {CustomUITrayOptions} uiOptions The options used to customize the UI tray.
      */
-    constructor(dom, styleService, uiOptions) {
+    constructor(dom, styleService, uiOptions, augmentations) {
         super(dom);
         this.#styleService = styleService;
         this.#uiOptions = uiOptions;
+        this.#augmentations = augmentations;
     } // end constructor
 
     #setupStyles() {
         const styles = `
             .max-10 {
                 max-width: 10vw;
+            }
+
+            .cui-font-color {
+                color: rgb(204, 204, 174);
+                font-family: "Lucida Console", "Lucida Sans Unicode", "Fira Mono", Consolas, "Courier New", Courier, monospace, "Times New Roman";
             }
         `;
 
@@ -56,6 +63,9 @@ export class CustomUITray extends BaseElement {
         options.id = 'ui-utilities-liner';
         options.children.push('test');
         options.cssClasses.push('max-10');
+        options.cssClasses.push('text-normal');
+        options.allowClose = true;
+        options.allowExpand = true;
         return options;
     }
 
@@ -69,6 +79,7 @@ export class CustomUITray extends BaseElement {
         this.#initUIAugments();
         let options = this.#createOptions();
         let uiCapabilities = this.createNode('ul');
+        uiCapabilities.cssClasses = 'toggle-handle';
         
         if (capabilities && capabilities.length > 0) {
             capabilities.forEach(item => {
@@ -79,10 +90,13 @@ export class CustomUITray extends BaseElement {
             });
         }
 
+        let augmentationControls = Object.keys(this.#augmentations ?? {})?.map(item => item()?.initialize()); // TODO: write an initialize method to create the HTML node to return for each augmentation.
+        let augmentationMenu = new Liner(this.getDom(), { });
+
         options.children.push(uiCapabilities);
 
         let liner = new Liner(this.getDom(), options);
-        let container = new Container(this.getDom(), { id: id, content: liner.create() });
+        let container = new Container(this.getDom(), { id: id, content: liner.create(), expandable: options.allowExpand, closable: options.allowClose });
 
         container.render('Interface Utilities');
     } // end function create
@@ -100,6 +114,7 @@ class AugmentState {
 
 export class CustomUITrayOptions {
     scripts = [];
+
     constructor() {
 
     }

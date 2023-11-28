@@ -1,14 +1,26 @@
 import { BaseElement } from 'modules/ui/components/base-element';
+import { Button, ButtonOptions } from 'modules/ui/components/button';
 
 export class Container extends BaseElement {
 	id = '';
+
+	/**
+	 * @type {ContainerOptions}
+	 */
+	#options;
 	thisElement = null;
 	#content = {};
 
+	/**
+	 * 
+	 * @param {Document} dom 
+	 * @param {ContainerOptions} options 
+	 */
 	constructor(dom, options) {
         super(dom);
 		this.id = options.id;
 		this.#content = options.content;
+		this.#options = options;
 	}
 
 	#dragElement(elmnt, dom) {
@@ -85,6 +97,14 @@ export class Container extends BaseElement {
 		return node;
 	}
 
+	minimize(e) {
+		let target = e.currentTarget;
+
+		target.classList.toggle('toggle');
+		target.classList.toggle('toggled');
+		target.parentNode?.parentNode?.parentNode?.querySelector('.collapsable').classList.toggle('collapsed');
+	}
+
 	createHeaderLabel(headerText) {
 		const node = this.createNode('div');
 		let cssClasses = 'jss4 MuiBox-root css-0';
@@ -92,10 +112,24 @@ export class Container extends BaseElement {
 		node.draggable = true;
 		node.append(this.createIcon());
 		node.append(this.createHeaderText(headerText));
-		let expander = this.createElement('button', null, 'MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButtonBase-root jss5 css-4i0fr7');
-		expander.textContent = 'x';
-		expander.onclick = () => this.close();
-		node.append(expander);
+
+		if (this.#options.expandable) {
+			let buttonOptions = new ButtonOptions();
+			buttonOptions.click = (e) => this.minimize(e);
+			buttonOptions.cssClasses = ['toggle','MuiButton-root', 'MuiButton-text', 'MuiButton-textPrimary', 'MuiButton-sizeSmall', 'MuiButton-textSizeSmall', 'MuiButtonBase-root', 'jss5', 'css-4i0fr7'];
+			let toggleButton = new Button(super.getDom(), buttonOptions);
+			node.append(toggleButton.create());
+		}
+
+		if (this.#options.closable) {
+			let closeButtonOptions = new ButtonOptions();
+			closeButtonOptions.click = (e) => this.close();
+			closeButtonOptions.cssClasses = 'MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButtonBase-root jss5 css-4i0fr7'.split(' ');
+			closeButtonOptions.displayText = 'x';
+			let closeButton = new Button(super.getDom(), closeButtonOptions);
+			node.append(closeButton.create());
+		}
+
 		return node;
 	}
 
@@ -114,7 +148,7 @@ export class Container extends BaseElement {
 	}
 
 	createBodyLiner() {
-		const element = this.createElement('div', null, 'MuiCollapse-root');
+		const element = this.createElement('div', null, 'MuiCollapse-root collapsable');
 		const liner = this.createElement('div', null, 'MuiTable-root css-1gurbcj');
 		liner.append(this.#content);
 		element.append(liner);
@@ -144,3 +178,8 @@ export class Container extends BaseElement {
 		this.#dragElement(this.findElementById(this.id), this.getDom());
 	}
 } // end class Container
+
+export class ContainerOptions {
+	expandable = false;
+	closable = false;
+}

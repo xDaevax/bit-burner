@@ -10,7 +10,15 @@ export class Capability {
     /**
      * The current value of the capability.
      */
-    value = {};
+    #value = {};
+
+    get value() {
+        return (this.#value instanceof Function) ? this.#value() : this.#value;
+    }
+
+    set value(val) {
+        this.#value = val;
+    }
 
     /**
      * Initializes a new instance of the capability.
@@ -19,6 +27,6 @@ export class Capability {
      */
     constructor(name, value) {
         this.name = name;
-        this.value = value ?? {};
+        this.#value = value ?? {};
     } // end constructor
 } // end class Capability
