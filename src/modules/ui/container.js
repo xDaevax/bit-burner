@@ -68,7 +68,7 @@ export class Container {
 		if (!exists) {
 			const node = this.#dom.createElement('div');
 			node.id = this.id;
-			let cssClasses = 'MuiPaper-root MuiPaper-elevation MuiPaper-elevation1 jss3 react-draggable react-draggable-dragged css-100bkux';
+			let cssClasses = 'MuiPaper-root MuiPaper-elevation MuiPaper-elevation1 jss3 react-draggable react-draggable-dragged css-100bkux css-19262ez-header';
 			node.classList.add(...cssClasses.split(' '));
 			node.style.width = 'fit-content';
 			node.style.minWidth = '45vw';

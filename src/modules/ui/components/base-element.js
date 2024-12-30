@@ -46,4 +46,14 @@ export class BaseElement {
 	createNode(name) {
 		return this.#dom.createElement(name);
 	} // end function createNode
+
+	/**
+	 * Creates a new namespaced DOM node with the given namespace and element name.
+	 * @param {string} namespace The namespace of the DOM node.
+	 * @param {string} name The name of the HTML tag to create.
+	 * @returns {HTMLElement} The new element.
+	 */
+	createNodeNS(namespace, name) {
+		return this.#dom.createElementNS(namespace, name);
+	} // end function createNodeNS
 } // end class BaseElement

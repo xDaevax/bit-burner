@@ -1,5 +1,6 @@
 import { BaseElement } from 'modules/ui/components/base-element';
 import { Button, ButtonOptions } from 'modules/ui/components/button';
+import { SVG, SVGOptions } from 'modules/ui/components/svg';
 
 export class Container extends BaseElement {
 	id = '';
@@ -70,7 +71,7 @@ export class Container extends BaseElement {
 		if (!exists) {
 			const node = this.createNode('div');
 			node.id = this.id;
-			let cssClasses = 'MuiPaper-root MuiPaper-elevation MuiPaper-elevation1 jss3 react-draggable react-draggable-dragged css-100bkux';
+			let cssClasses = 'MuiPaper-root MuiPaper-elevation MuiPaper-elevation1 jss3 react-draggable react-draggable-dragged css-100bkux css-1m2n216-overviewContainer';
 			node.classList.add(...cssClasses.split(' '));
 			node.style.width = 'fit-content';
 			node.style.minWidth = '45vw';
@@ -89,7 +90,7 @@ export class Container extends BaseElement {
 
 	createDockedHeader(parentId, headerText) {
 		const node = this.createNode('div');
-		let cssClasses = 'MuiDrawer-root MuiDrawer-docked css-v3syqg border-bottom';
+		let cssClasses = 'MuiDrawer-root MuiDrawer-docked css-v3syqg border-bottom css-19262ez-header';
 		node.id = `${parentId}-header`;
 		node.style.width = '100%';
 		node.classList.add(...cssClasses.split(' '));
@@ -107,18 +108,26 @@ export class Container extends BaseElement {
 
 	createHeaderLabel(headerText) {
 		const node = this.createNode('div');
-		let cssClasses = 'jss4 MuiBox-root css-0';
+		let cssClasses = 'MuiBox-root css-0 css-19262ez-header';
+		node.style.width = "100%";
 		node.classList.add(...cssClasses.split(' '));
 		node.draggable = true;
 		node.append(this.createIcon());
 		node.append(this.createHeaderText(headerText));
 
 		if (this.#options.expandable) {
+			let svgOptions = new SVGOptions();
+			svgOptions.pathData = 'M7.41 15.41 12 10.83l4.59 4.58L18 14l-6-6-6 6z';
+			svgOptions.cssClasses = ['MuiSvgIcon-root', 'MuiSvgIcon-colorSecondary', 'MuiSvgIcon-fontSizeMedium', 'css-1b0w8p7-icon'];
+			let toggleIcon = new SVG(super.getDom(), svgOptions);
+
 			let buttonOptions = new ButtonOptions();
+			buttonOptions.cssClasses = ['toggle', 'MuiButtonBase-root', 'MuiButton-root', 'MuiButton-text', 'MuiButton-textPrimary', 'MuiButton-sizeSmall', 'MuiButton-textSizeSmall', 'MuiButton-root', 'MuiButton-text', 'MuiButton-textPrimary', 'MuiButton-sizeSmall', 'MuiButton-textSizeSmall', 'css-9vm2yu-visibilityToggle'];
 			buttonOptions.click = (e) => this.minimize(e);
-			buttonOptions.cssClasses = ['toggle','MuiButton-root', 'MuiButton-text', 'MuiButton-textPrimary', 'MuiButton-sizeSmall', 'MuiButton-textSizeSmall', 'MuiButtonBase-root', 'jss5', 'css-4i0fr7'];
 			let toggleButton = new Button(super.getDom(), buttonOptions);
-			node.append(toggleButton.create());
+			let toggleNode = toggleButton.create();
+			toggleNode.append(toggleIcon.create());
+			node.append(toggleNode);
 		}
 
 		if (this.#options.closable) {
@@ -142,9 +151,11 @@ export class Container extends BaseElement {
 	}
 
 	createIcon() {
-		const node = this.createElement('svg', '', 'MuiSvgIcon-root MuiSvgIcon-colorSecondary MuiSvgIcon-fontSizeMedium jss7 css-14r2v8n');
-		node.attributes['data-feather'] = 'circle';
-		return node;
+		const svgOptions = new SVGOptions();
+		svgOptions.pathData = 'm22.747 10.291 -1.987 -0.331a8.925 8.925 0 0 0 -1.143 -2.74l1.107 -1.549a1.485 1.485 0 0 0 -0.158 -1.915l-0.321 -0.321a1.485 1.485 0 0 0 -1.915 -0.158l-1.549 1.107a8.925 8.925 0 0 0 -2.74 -1.143l-0.331 -1.987A1.5 1.5 0 0 0 12.23 0h-0.459a1.5 1.5 0 0 0 -1.48 1.253l-0.331 1.987a8.925 8.925 0 0 0 -2.74 1.143L5.671 3.277a1.485 1.485 0 0 0 -1.915 0.158l-0.321 0.321a1.485 1.485 0 0 0 -0.158 1.915l1.107 1.549a8.925 8.925 0 0 0 -1.143 2.74l-1.987 0.331A1.5 1.5 0 0 0 0 11.771v0.459a1.5 1.5 0 0 0 1.253 1.48l1.987 0.331a8.925 8.925 0 0 0 1.143 2.74l-1.107 1.549a1.485 1.485 0 0 0 0.158 1.915l0.321 0.321a1.485 1.485 0 0 0 1.915 0.158l1.549 -1.107a8.925 8.925 0 0 0 2.74 1.143l0.331 1.987A1.5 1.5 0 0 0 11.771 24h0.459a1.5 1.5 0 0 0 1.48 -1.253l0.331 -1.987a8.925 8.925 0 0 0 2.74 -1.143l1.549 1.107a1.485 1.485 0 0 0 1.915 -0.158l0.321 -0.321a1.485 1.485 0 0 0 0.158 -1.915l-1.107 -1.549a8.925 8.925 0 0 0 1.143 -2.74l1.987 -0.331A1.5 1.5 0 0 0 24 12.23v-0.459a1.5 1.5 0 0 0 -1.253 -1.48M12 16.5a4.5 4.5 0 1 1 4.5 -4.5 4.5 4.5 0 0 1 -4.5 4.5';
+		svgOptions.cssClasses = ['MuiSvgIcon-root', 'MuiSvgIcon-colorSecondary', 'MuiSvgIcon-fontSizeMedium', 'css-1bpz3m4-icon'];
+		const node = new SVG(super.getDom(), svgOptions);
+		return node.create();
 	}
 
 	createBodyLiner() {

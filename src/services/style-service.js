@@ -41,13 +41,13 @@ export class StyleService {
                     let matchingStyle = stylesheets.find(match => match.title === updatedStyle.title);
 
                     if (matchingStyle) {
-                        this.#dom.getElementById(matchingStyle.ownerNode.id).innerHTML = updatedStyle.contents;
+                        this.#dom.getElementById(matchingStyle.ownerNode.id).textContent = updatedStyle.contents;
                     } else {
                         let newStyle = this.#dom.createElement('style');
                         newStyle.setAttribute('type', 'text/css');
                         newStyle.setAttribute('title', updatedStyle.title);
                         newStyle.id = updatedStyle.title;
-                        newStyle.innerHTML = updatedStyle.contents;
+                        newStyle.textContent = updatedStyle.contents;
                         this.#dom.getElementsByTagName('head')[0].append(newStyle);
                     }
                 }
@@ -73,6 +73,7 @@ export class StyleService {
      * @param {StyleMessage} style The style to apply.  If the style does not already exist, it will be added, otherwise it will be updated.
      */
     setStyle(style) {
+        console.log(`received: ${style.title} style`);
         let stylePort = this.#getPort(StyleService.#channelName);
 
         stylePort.write(JSON.stringify(style));

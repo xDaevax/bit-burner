@@ -39,13 +39,6 @@ export class BaseStyles {
         .width-100 {
             width: 100%;
         }
-        
-        .toggle:before,
-        .toggled:before,
-        .toggle:before,
-        .toggled:before {
-            content: "\\29E8";
-        }
 
         .liner {
             color: rgb(200, 200, 180);
@@ -61,12 +54,12 @@ export class BaseStyles {
             height: 20px;
         }
 
-        .toggled {
+        .toggled, .toggled > * {
             transform: rotate(-90deg);
             transition: transform 0.3s ease-in-out;
 		}
         
-        .toggle {
+        .toggle, .toggle > * {
             transform: rotate(0deg);
             transition: transform 0.3s ease-in-out;
         }

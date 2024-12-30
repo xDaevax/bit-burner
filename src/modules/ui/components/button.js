@@ -1,4 +1,4 @@
-import { BaseElement } from 'modules/ui/components/base-element.js';
+import { BaseElement } from 'modules/ui/components/base-element';
 
 /**
  * Type used to render a UI button.

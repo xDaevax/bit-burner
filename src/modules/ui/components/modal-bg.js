@@ -1,5 +1,5 @@
-import { BaseElement } from 'modules/ui/components/base-element.js';
-import { StyleMessage } from 'services/style-service.js';
+import { BaseElement } from 'modules/ui/components/base-element';
+import { StyleMessage } from 'services/style-service';
 
 /**
  * Component that renders a modal background, disabling background interaction for the modal.

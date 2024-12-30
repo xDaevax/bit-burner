@@ -11,6 +11,10 @@ export class CapabilityLoader {
         return this.#ns.getPlayer();
     }
 
+    #resetInfo() {
+        return this.#ns.getResetInfo();
+    }
+
     #hasSingularity() {
         try {
             return this.#ns.singularity.getCurrentServer() != '';
@@ -23,6 +27,18 @@ export class CapabilityLoader {
         return this.#ns.stock.has4SData();
     }
 
+    #has4SDataTixApi() {
+        return this.#ns.stock.has4SDataTIXAPI();
+    }
+
+    #hasTixApi() {
+        return this.#ns.stock.hasTIXAPIAccess();
+    }
+
+    #hasWSEAccount() {
+        return this.#ns.stock.hasWSEAccount();
+    }
+
     #hasExe(exeName) {
         return this.#ns.fileExists(exeName);
     }
@@ -33,7 +49,7 @@ export class CapabilityLoader {
 
     loadCapabilities() {
         return [
-            new Capability(Capabilities.BitNode.description, this.#player().bitNodeN),
+            new Capability(Capabilities.BitNode.description, this.#resetInfo().currentNode),
             new Capability(Capabilities.HackNetServer.description,this.hasHacknetServer()),
             new Capability(Capabilities.SingularityAPI.description, this.#hasSingularity()),
             new Capability(Capabilities.Executables.BruteSsh.description, this.#hasExe(Capabilities.Executables.BruteSsh.description)),
@@ -45,7 +61,11 @@ export class CapabilityLoader {
             new Capability(Capabilities.Executables.DeepScanV1.description, this.#hasExe(Capabilities.Executables.DeepScanV1.description)),
             new Capability(Capabilities.Executables.DeepScanV2.description, this.#hasExe(Capabilities.Executables.DeepScanV2.description)),
             new Capability(Capabilities.Executables.ServerProfiler.description, this.#hasExe(Capabilities.Executables.ServerProfiler.description)),
-            new Capability(Capabilities.Stocks.Has4SData.description, () => this.#has4SData())
+            new Capability(Capabilities.Executables.Formulas.description, this.#hasExe(Capabilities.Executables.Formulas.description)),
+            new Capability(Capabilities.Stocks.Has4SData.description, this.#has4SData()),
+            new Capability(Capabilities.Stocks.Has4SDataTixApi.description, this.#has4SDataTixApi()),
+            new Capability(Capabilities.Stocks.HasTixApiAccess.description, this.#hasTixApi()),
+            new Capability(Capabilities.Stocks.HasWSEAccount.description, this.#hasWSEAccount())
         ];
     }
 
@@ -71,9 +91,13 @@ export const Capabilities = {
         AutoLink: Symbol('AutoLink.exe'),
         DeepScanV1: Symbol('DeepScanV1.exe'),
         DeepScanV2: Symbol('DeepScanV2.exe'),
-        ServerProfiler: Symbol('ServerProfiler.exe')
+        ServerProfiler: Symbol('ServerProfiler.exe'),
+        Formulas: Symbol('Formulas.exe')
     },
     Stocks: {
-        Has4SData: Symbol('Has4SData')
+        Has4SData: Symbol('Has4SData'),
+        Has4SDataTixApi: Symbol('Has4SDataTixApi'),
+        HasTixApiAccess: Symbol('HasTixApiAccess'),
+        HasWSEAccount: Symbol('HasWSEAccount')
     }
 };
