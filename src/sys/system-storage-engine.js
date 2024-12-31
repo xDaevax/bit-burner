@@ -1,7 +1,8 @@
-import { Storage } from "models/storage.js"
+import { Storage } from "models/storage";
 
 export class StorageKeys {
   static PlayerKey = "xd_bb_pl";
+  static HackingKey = "xd_bb_hk";
 }
 
 /**
@@ -12,12 +13,13 @@ export class SystemStorageEngine {
    * Initializes a new instance of the SystemStorageEngine class.
    */
   constructor() {
-  }
+  } // end constructor
 
   /**
    * Creates a new Storage instance that can be used to write data to browser storage.
-   * @param name - The unique name of the data to store
-   * @param data - The data to store.
+   * @param {string} name - The unique name of the data to store
+   * @param {object} data - The data to store.
+   * @returns {Storage}
    */
   createStorageItem(name, data) {
     let returnValue = new Storage();
@@ -25,11 +27,11 @@ export class SystemStorageEngine {
     returnValue.storageName = name;
 
     return returnValue;
-  }
+  } // end function createStorageItem
 
   /**
    * Writes the given storage data to the browser storage.  If the item already exists, it will be overwritten.
-   * @param storage - The storage instance with the storage name and data to write.
+   * @param {Storage} storage - The storage instance with the storage name and data to write.
    */
   save(storage) {
     if (localStorage?.length > 0) {
@@ -50,11 +52,12 @@ export class SystemStorageEngine {
         storage.getDataForStorage()
       );
     }
-  }
+  } // end function save
 
   /**
    * Attempts to load the data in browser storage with the given key.  If the key is not found in storage, this method returns null.
-   * @param key - The key of the item to load from storage.
+   * @param {string} key - The key of the item to load from storage.
+   * @returns {Storage}
    */
   load(key) {
     if (localStorage?.length > 0) {
@@ -71,7 +74,7 @@ export class SystemStorageEngine {
     } else {
       return new Storage();
     }
-  }
+  } // end function load
 
   /**
    * Attempts to remove the given key from session storage.  Does nothing if the item isn't found or no items exist.
@@ -85,5 +88,5 @@ export class SystemStorageEngine {
         localStorage.removeItem(key);
       }
     }
-  }
-}
+  } // end function remove
+} // end class SystemStorageEngine

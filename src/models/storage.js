@@ -8,11 +8,12 @@ export class Storage {
     constructor() {
       this.storageName = "";
       this.data = {};
-    }
+    } // end constructor
   
     /**
      * Attempts to create a new instance of the Storage model from the given value.
-     * @param value The value to convert to the object (usually comes from browser storage).
+     * @param {string} value The value to convert to the object (usually a JSON string that comes from browser storage).
+     * @returns {object}
      */
     buildFromStorage(value) {
       if (`${value}`.trim() === "") {
@@ -20,10 +21,11 @@ export class Storage {
       } else {
         this.data = JSON.parse(value);
       }
-    }
+    } // end function buildFromStorage
   
     /**
      * Returns a JSON string of the data to be stored in browser storage.
+     * @returns {string}
      */
     getDataForStorage() {
       if (!!!this.data) {
@@ -31,6 +33,6 @@ export class Storage {
       } else {
         return JSON.stringify(this.data);
       }
-    }
-  }
+    } // end function getDataForStorage
+  } // end class Storage
   

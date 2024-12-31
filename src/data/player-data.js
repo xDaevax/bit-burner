@@ -6,14 +6,24 @@ export class PlayerData {
     hacking = 0;
     intelligence = 0;
     strength = 0;
+    current = 0;
+    max = 0;
+    money = 0;
 
-    constructor() {
-        this.agility = 0;
-        this.charisma = 0;
-        this.defense = 0;
-        this.dexterity = 0;
-        this.hacking = 0;
-        this.intelligence = 0;
-        this.strength = 0;
+    constructor(existing) {
+        if (existing) {
+            Object.assign(this, existing);
+        } else {
+            this.agility = 0;
+            this.charisma = 0;
+            this.defense = 0;
+            this.dexterity = 0;
+            this.hacking = 0;
+            this.intelligence = 0;
+            this.strength = 0;
+            this.current = 0;
+            this.max = 0;
+            this.money = 0;
+        }
     }
 }
