@@ -14,6 +14,8 @@ import { SystemStorageEngine } from "sys/system-storage-engine";
 import { PlayerDataWatcher } from "data/player-data-watcher";
 import { BaseStyles } from "modules/ui/widgets/base-styles";
 import { Augment } from "modules/ui/augments/augment";
+import { StateService } from "services/state-service";
+import { ExecutableDataWatcher } from "data/executable-data-watcher";
 
 /**
  * Composition root that boot-straps all other scripts.
@@ -59,6 +61,8 @@ export async function setup(ns) {
     win[DomNames.DependencyInjection].setup('hack-manager', new HackManager(ns, {exclusions: ['home'], prefixExclusions: ['hack-', 'weaken-']}, getService('network-manager', win)));
     win[DomNames.DependencyInjection].setup('storage-engine', new SystemStorageEngine());
     win[DomNames.DependencyInjection].setup('player-watcher', new PlayerDataWatcher(ns, getService('storage-engine', win)));
+    win[DomNames.DependencyInjection].setup('exe-watcher', new ExecutableDataWatcher(ns, getService('storage-engine', win)));
+    win[DomNames.DependencyInjection].setup('state-service', new StateService(ns, getService('capability-loader', win), getService('port-service', win), getService('player-watcher', win), getService('exe-watcher', win)));
 
     /** Root Styles */
     var rootStyles = new BaseStyles(getService('style-service', win));
@@ -68,12 +72,17 @@ export async function setup(ns) {
     getService('hack-manager', win).startHack();
     ns.atExit(() => {interruptToken.isCancellationRequested = true});
     getService('player-watcher', win).startWatcher(interruptToken);
+    getService('exe-watcher', win).startWatcher(interruptToken);
 
     startupScripts.forEach(script => {
         ns.run(script);
     });
 
     while(!getService('style-service', win).disposed) {
+        await ns.asleep(5000);
+    }
+
+    while (!getService('state-service', win).disposed) {
         await ns.asleep(5000);
     }
 }
