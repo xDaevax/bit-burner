@@ -1,4 +1,5 @@
-import { Capability } from "models/capability.js";
+import { CapabilityState } from "models/capability-state";
+import { Capabilities } from "sys/capabilities";
 
 export class CapabilityLoader {
     #ns;
@@ -49,23 +50,23 @@ export class CapabilityLoader {
 
     loadCapabilities() {
         return [
-            new Capability(Capabilities.BitNode.description, this.#resetInfo().currentNode),
-            new Capability(Capabilities.HackNetServer.description,this.hasHacknetServer()),
-            new Capability(Capabilities.SingularityAPI.description, this.#hasSingularity()),
-            new Capability(Capabilities.Executables.BruteSsh.description, this.#hasExe(Capabilities.Executables.BruteSsh.description)),
-            new Capability(Capabilities.Executables.FtpCrack.description, this.#hasExe(Capabilities.Executables.FtpCrack.description)),
-            new Capability(Capabilities.Executables.RelaySmtp.description, this.#hasExe(Capabilities.Executables.RelaySmtp.description)),
-            new Capability(Capabilities.Executables.HttpWorm.description, this.#hasExe(Capabilities.Executables.HttpWorm.description)),
-            new Capability(Capabilities.Executables.SqlInject.description, this.#hasExe(Capabilities.Executables.SqlInject.description)),
-            new Capability(Capabilities.Executables.AutoLink.description, this.#hasExe(Capabilities.Executables.AutoLink.description)),
-            new Capability(Capabilities.Executables.DeepScanV1.description, this.#hasExe(Capabilities.Executables.DeepScanV1.description)),
-            new Capability(Capabilities.Executables.DeepScanV2.description, this.#hasExe(Capabilities.Executables.DeepScanV2.description)),
-            new Capability(Capabilities.Executables.ServerProfiler.description, this.#hasExe(Capabilities.Executables.ServerProfiler.description)),
-            new Capability(Capabilities.Executables.Formulas.description, this.#hasExe(Capabilities.Executables.Formulas.description)),
-            new Capability(Capabilities.Stocks.Has4SData.description, this.#has4SData()),
-            new Capability(Capabilities.Stocks.Has4SDataTixApi.description, this.#has4SDataTixApi()),
-            new Capability(Capabilities.Stocks.HasTixApiAccess.description, this.#hasTixApi()),
-            new Capability(Capabilities.Stocks.HasWSEAccount.description, this.#hasWSEAccount())
+            new CapabilityState(Capabilities.BitNode.description, () => this.#resetInfo().currentNode, this.#ns),
+            new CapabilityState(Capabilities.HackNetServer.description, () => this.hasHacknetServer(), this.#ns),
+            new CapabilityState(Capabilities.SingularityAPI.description, () => this.#hasSingularity(), this.#ns),
+            new CapabilityState(Capabilities.Executables.BruteSSH.description, () => this.#hasExe(Capabilities.Executables.BruteSSH.description), this.#ns),
+            new CapabilityState(Capabilities.Executables.FTPCrack.description, () => this.#hasExe(Capabilities.Executables.FTPCrack.description), this.#ns),
+            new CapabilityState(Capabilities.Executables.relaySMTP.description, () => this.#hasExe(Capabilities.Executables.relaySMTP.description), this.#ns),
+            new CapabilityState(Capabilities.Executables.HTTPWorm.description, () => this.#hasExe(Capabilities.Executables.HTTPWorm.description), this.#ns),
+            new CapabilityState(Capabilities.Executables.SQLInject.description, () => this.#hasExe(Capabilities.Executables.SQLInject.description), this.#ns),
+            new CapabilityState(Capabilities.Executables.AutoLink.description, () => this.#hasExe(Capabilities.Executables.AutoLink.description), this.#ns),
+            new CapabilityState(Capabilities.Executables.DeepscanV1.description, () => this.#hasExe(Capabilities.Executables.DeepscanV1.description), this.#ns),
+            new CapabilityState(Capabilities.Executables.DeepscanV2.description, () => this.#hasExe(Capabilities.Executables.DeepscanV2.description), this.#ns),
+            new CapabilityState(Capabilities.Executables.ServerProfiler.description, () => this.#hasExe(Capabilities.Executables.ServerProfiler.description), this.#ns),
+            new CapabilityState(Capabilities.Executables.Formulas.description, () => this.#hasExe(Capabilities.Executables.Formulas.description), this.#ns),
+            new CapabilityState(Capabilities.Stocks.Has4SData.description, () => this.#has4SData(), this.#ns),
+            new CapabilityState(Capabilities.Stocks.Has4SDataTixApi.description, () => this.#has4SDataTixApi(), this.#ns),
+            new CapabilityState(Capabilities.Stocks.HasTixApiAccess.description, () => this.#hasTixApi(), this.#ns),
+            new CapabilityState(Capabilities.Stocks.HasWSEAccount.description, () => this.#hasWSEAccount(), this.#ns)
         ];
     }
 
@@ -77,27 +78,3 @@ export class CapabilityLoader {
         return this.hasAnyHacknetNodes() && this.#hacknet().getNodeStats(0).hasOwnProperty('cache');
     }
 }
-
-export const Capabilities = {
-    BitNode: Symbol('BitNode'),
-    SingularityAPI: Symbol('Singularity.Api'),
-    HackNetServer: Symbol('HackNet.Server'),
-    Executables: {
-        BruteSsh: Symbol('bruteSSH.exe'),
-        FtpCrack: Symbol('FTPCrack.exe'),
-        RelaySmtp: Symbol('relaySMTP.exe'),
-        HttpWorm: Symbol('HTTPWorm.exe'),
-        SqlInject: Symbol('SQLInject.exe'),
-        AutoLink: Symbol('AutoLink.exe'),
-        DeepScanV1: Symbol('DeepScanV1.exe'),
-        DeepScanV2: Symbol('DeepScanV2.exe'),
-        ServerProfiler: Symbol('ServerProfiler.exe'),
-        Formulas: Symbol('Formulas.exe')
-    },
-    Stocks: {
-        Has4SData: Symbol('Has4SData'),
-        Has4SDataTixApi: Symbol('Has4SDataTixApi'),
-        HasTixApiAccess: Symbol('HasTixApiAccess'),
-        HasWSEAccount: Symbol('HasWSEAccount')
-    }
-};

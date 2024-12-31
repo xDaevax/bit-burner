@@ -1,59 +1,74 @@
-import { Capability } from "./capability";
+import { BehaviorSubject } from "sys/behavior-subject";
+import { Capability } from "models/capability";
+import { Subscription } from "sys/subscription";
 
 /**
  * Type used to store the capability state, allows for real-time updates as capabilities change.
  */
-export class CapabilityState {
+export class CapabilityState extends Capability {
     #capabilityLocked;
     #ns;
-    #capabilities;
+    /**
+     * @type {BehaviorSubject}
+     */
+    #state;
+
+    /**
+     * @type {Subscription[]}
+     */
     #observers;
 
     /**
+     * @typedef {Object} ObserverFunction
+     * @property {function} next The function to invoke when a value changes.
+     * @property {function?} complete The function to invoke when the subscription is completed.
+     */
+
+    /**
      * Initializes a new instance of the Capability State class.
+     * @param {string} name The name of the capability.
+     * @param {*} value The value of the capability (can also be a function to retrieve data). 
      * @param {NS} ns The Net Script instance, used primarily for asleep. 
      */
-    constructor(ns) {
+    constructor(name, value, ns) {
+        super(name, value);
         this.#capabilityLocked = false;
-        this.#capabilities = {};
         this.#ns = ns;
-        this.#observers = {};
+        this.#observers = [];
     } // end constructor
 
     /**
      * Adds a subscriber to changes in capabilities.
-     * @param {Function<any>} observer The operation to perform when a capability is updated. 
-     * @param {string} capability The capability to monitor.
+     * @param {ObserverFunction} observer The operation to perform when a capability is updated. 
      */
-    subscribe(observer, capability) {
-        let existing = Object.keys(this.#observers).filter(match => match == capability)[0];
-
-        if (existing) {
-            this.#observers[capability].push(observer);
-        } else {
-            this.#observers[capability] = [];
-            this.#observers[capability].push(observer);
-        }
+    subscribe(observer) {
+        this.#observers.push(this.#state.subscribe(observer))
     } // end function subscribe
 
     /**
-     * Updates the value of the given capability
-     * @param {Capability} capability The capability instance to update.
+     * Encapsulation to load the set of observers for a given capability.
+     * @param {string} capability The capability to load.
+     * @returns {Subscription[]} An array of subscription instances.
      */
-    async updateCapability(capability) {
+    loadCapabilityObservers(capability) {
+        return this.#observers[capability];
+    } // end function loadCapabilityObservers
+
+    /**
+     * Updates the value of the given capability
+     */
+    async updateCapability() {
         if (this.#capabilityLocked) {
             while (this.#capabilityLocked) {
-                await this.#ns.asleep(250);
+                await this.#ns.asleep(150);
             }
 
             this.#capabilityLocked = true;
-            this.#capabilities[capability.name] = capability.value;
-            this.#observers[capability]?.forEach(observer => observer(capability.value));
+            this.#state.next(this.value);
             this.#capabilityLocked = false;
         } else {
             this.#capabilityLocked = true;
-            this.#capabilities[capability.name] = capability.value;
-            this.#observers[capability]?.forEach(observer => observer(capability.value));
+            this.#state.next(this.value);
             this.#capabilityLocked = false;
         }
     } // end function updateCapability
