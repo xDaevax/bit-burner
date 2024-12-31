@@ -53,7 +53,7 @@ export async function setup(ns) {
     win[DomNames.DependencyInjection].setup('port-service', new PortService());
     win[DomNames.DependencyInjection].setup('capability-loader', new CapabilityLoader(ns));
     win[DomNames.DependencyInjection].setup('stock-manager', new StockManagerV2(ns, stockConfig));
-    win[DomNames.DependencyInjection].setup('stock-service', new StockService(getService('stock-manager', win)));
+    win[DomNames.DependencyInjection].setup('stock-service', new StockService(getService('stock-manager', win), ns));
     win[DomNames.DependencyInjection].setup('style-service', new StyleService(ns, doc, getService('port-service', win)));
     win[DomNames.DependencyInjection].setup('ui-manager', new UIManager(doc, getService('style-service', win), getService('capability-loader', win), augmentations));
     win[DomNames.DependencyInjection].setup('ui-service', new UIService(doc, async (value) => { await ns.asleep(value); }, getService('ui-manager', win)));
@@ -77,6 +77,8 @@ export async function setup(ns) {
     startupScripts.forEach(script => {
         ns.run(script);
     });
+
+    await getService('stock-service', win).enableBroker();
 
     while(!getService('style-service', win).disposed) {
         await ns.asleep(5000);

@@ -1,19 +1,27 @@
-import { StockManager } from "managers/stock-manager";
+import { StockManagerV2 } from "managers/stock-manager-v2";
 
 /**
  * Exposes business logic and behaviors for dealing with stocks.
  */
 export class StockService {
     #enabled;
+    /**
+     * @type {StockManagerV2}
+     */
     #stockManager;
+    /**
+     * @type {NS}
+     */
+    #ns;
 
     /**
      * Initializes a new instance of the StockService class.
-     * @param {StockManager} stockManager The manager that provides low-level access to stock management.
+     * @param {StockManagerV2} stockManager The manager that provides low-level access to stock management.
      */
-    constructor(stockManager) {
+    constructor(stockManager, ns) {
         this.#enabled = false;
         this.#stockManager = stockManager;
+        this.#ns = ns;
     } // end constructor
 
     /**
@@ -26,11 +34,11 @@ export class StockService {
 
         this.#enabled = true;
 
-        ns.disableLog('disableLog');
-        ns.disableLog('sleep');
-        ns.disableLog('getServerMoneyAvailable');
+        this.#ns.disableLog('disableLog');
+        this.#ns.disableLog('sleep');
+        this.#ns.disableLog('getServerMoneyAvailable');
 
-        await this.#stockManager.run(() => this.#enabled);
+        await this.#stockManager.run(() => !this.#enabled);
     } // end function enableBroker
 
     /**

@@ -155,7 +155,7 @@ export class StockManagerV2 {
                 break;
             }
 
-            await this.#ns.sleep(5 * 1000 * this.#settings.cycleCount + 200);
+            await this.#ns.asleep(5 * 1000 * this.#settings.cycleCount + 200);
         }
     } // end function run
 } // end class StockManagerV2
